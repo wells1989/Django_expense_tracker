@@ -41,7 +41,6 @@
 
 
 <!-- Expenses Table -->
-
 <style>
     .expense-row:hover .hover-bg-green-200 {
         background-color: rgba(142, 219, 144, 0.5);
@@ -112,6 +111,7 @@
     </div>
 </div>
 
+
 <!-- Past 30 day and categorical expenses -->
 <div class="flex">
     <!-- last 30 day totals per day -->
@@ -177,7 +177,6 @@
 
 <script>
 
-    // accessing elements via category and category table
     const cats = []
     const cat_sums = []
 
@@ -190,11 +189,6 @@
             cats.push(catSumDiv[i].innerText)
         }
     }
-    /* above, catSumDiv gets all the div elements in cat_sum_table, e.g. if 4 categories each will produce 2 divs
-        then, loops through those divs, for the even ones (i.e. the first of the two divs, for odd ones (e.g. the 2nd, i=1,3,5 etc) adds to the cat_sums array, else for odd indexes, i.e. i=0,2,4,6) adds to categories array
-    */
-
-    // dev only (want to check pure integer values) console.log(cat_sums)
 
     // category table logic
     var ctx = document.getElementById('myChart').getContext('2d');
@@ -255,7 +249,6 @@
     }
 
     // 30 day table
-
     var ctx = document.getElementById('myChart2').getContext('2d');
     var myChart = new Chart(ctx, {
         type: 'line',
@@ -271,7 +264,7 @@
                     'rgb(203, 167, 86)',
                     'rgb(121, 105, 171)',
                     'rgb(152, 124, 86)',
-                    'rgb(0, 0, 0)' // Black color added
+                    'rgb(0, 0, 0)'
                 ],
                 borderColor: [
                     'rgb(112, 155, 97)',
@@ -280,7 +273,7 @@
                     'rgb(203, 167, 86)',
                     'rgb(121, 105, 171)',
                     'rgb(152, 124, 86)',
-                    'rgb(0, 0, 0)' // Black color added
+                    'rgb(0, 0, 0)'
                 ],
                 borderWidth: 1
             }]

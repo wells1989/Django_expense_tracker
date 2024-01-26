@@ -12,18 +12,17 @@ def index(request):
 
         if expense.is_valid:
             expense.save()
-            return redirect('index') # to avoid repeating the post request on page refresh, redirect sends a GET request
+            return redirect('index')
 
     else:
         expenses = Expense.objects.all()
 
         # calculating total expenses
-            # from django.db.models import Sum
-        total_expenses = expenses.aggregate(Sum('amount')) # sums up all of the amounts
+        total_expenses = expenses.aggregate(Sum('amount'))
         
-        # calculating 365 day expenses (+ import datetime ...)
+        # calculating 365 day expenses
         last_year = datetime.date.today() - datetime.timedelta(days=365)
-        data = Expense.objects.filter(date__gt=last_year) # date greater than last year as starting point, i.e. in the last year
+        data = Expense.objects.filter(date__gt=last_year) 
         yearly_sum = data.aggregate(Sum('amount'))
 
         # / last months expensese
