@@ -1,0 +1,39 @@
+{% extends 'myapp/base.html' %}
+
+{% block body %}
+
+<h3>Index section</h3>
+<form method="POST" class="shadow-lg m-5 rounded-lg">
+    {% csrf_token %}
+    <div class="form-container p-5 flex">
+
+        <div class="m-5">
+            <div class="mb-5">
+                <label>Expense Name</label>
+            </div>
+            <div class="border">{{ expense_form.name }}</div>
+        </div>
+
+        <div class="m-5">
+            <div class="mb-5">
+                <label>Expense Amount</label>
+            </div>
+            <div class="border">{{ expense_form.amount }}</div>
+        </div>
+
+        <div class="m-5">
+            <div class="mb-5">
+                <label>Expense Category</label>
+            </div>
+            <div class="border">{{ expense_form.category }}</div>
+        </div>
+
+        <div class="m-5 mt-10 flex flex-col align-center justify-center">
+            <button class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded">
+                Save Changes
+            </button>
+
+        </div>
+    </div>
+</form>
+{% endblock %}

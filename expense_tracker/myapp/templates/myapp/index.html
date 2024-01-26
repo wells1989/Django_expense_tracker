@@ -1,0 +1,306 @@
+{% extends 'myapp/base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block body %}
+<!-- Add expense form -->
+<div class="flex flex-col items-center justify-center">
+    <div class="font-bold mt-3 mb-5">Add Expense +</div>
+
+    <form method="POST" class="grid grid-cols-4 gap-4 shadow-lg p-4 rounded-lg">
+        {% csrf_token %}
+
+        <div class="col-span-1">
+            <div class="mb-3">
+                <label>Expense Name</label>
+            </div>
+            <div class="border p-2">{{ expense_form.name }}</div>
+        </div>
+
+        <div class="col-span-1">
+            <div class="mb-3">
+                <label>Expense Amount</label>
+            </div>
+            <div class="border p-2">{{ expense_form.amount }}</div>
+        </div>
+
+        <div class="col-span-1">
+            <div class="mb-3">
+                <label>Expense Category</label>
+            </div>
+            <div class="border p-2">{{ expense_form.category }}</div>
+        </div>
+
+        <div class="col-span-1 flex items-center justify-center mt-5">
+            <button class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded">
+                Add
+            </button>
+        </div>
+    </form>
+</div>
+
+
+<!-- Expenses Table -->
+
+<style>
+    .expense-row:hover .hover-bg-green-200 {
+        background-color: rgba(142, 219, 144, 0.5);
+    }
+
+    .expense-row:hover .hover-bg-red-200 {
+        background-color: #ff8a80;
+    }
+</style>
+
+<div class="shadow-lg m-10 rounded-lg">
+    <table class="table my-5 w-full border-collapse border border-gray-300">
+        <thead class="bg-blue-500 text-white">
+            <tr>
+                <th scope="col" class="p-6 text-lg">Expense</th>
+                <th scope="col" class="p-6 text-lg">Cost</th>
+                <th scope="col" class="p-6 text-lg">Category</th>
+                <th scope="col" class="p-6 text-lg">Date</th>
+                <th scope="col" class="p-6 text-lg">Edit</th>
+                <th scope="col" class="p-6 text-lg">Delete</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for expense in expenses %}
+            <tr class="text-center border-b border-gray-300 expense-row hover:bg-gray-200 font-bold">
+                <td class="p-6">{{ expense.name }} </td>
+                <td class="p-6">{{ expense.amount }} </td>
+                <td class="p-6">{{ expense.category }} </td>
+                <td class="p-6">{{ expense.date }} </td>
+                <td class="p-6 flex items-center justify-center hover-bg-green-200">
+                    <a href="{% url 'edit' expense.id %}">
+                        <img class="h-5" src="{% static 'myapp/images/edit.png' %}">
+                    </a>
+                </td>
+                <td class="p-6 hover-bg-red-200">
+                    <form method="POST" action="{% url 'delete' expense.id %}">
+                        {% csrf_token %}
+                        <button type="submit" name="delete">
+                            <img class="h-5" src="{% static 'myapp/images/delete.png' %}">
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- total values -->
+<div class="w-100 flex justify-center items-center mb-10">
+    <h1 class=" text-4xl font-bold text-blue-700">Total Expenses: {{ total_expenses.amount__sum|intcomma }}</h1>
+</div>
+
+
+<!-- total values per week / month / year -->
+<div class="flex">
+    <div class=" w-1/3 shadow-lg ml-11 rounded-lg flex flex-col justify-center items-center">
+        <h1 class="ml-10 font-bold text-gray-500">Last 365 days</h1>
+        <h1 class="ml-10 my-5 text-2xl text-blue-500 font-bold">{{ yearly_sum.amount__sum|intcomma }}</h1>
+    </div>
+    <div class=" w-1/3 shadow-lg ml-11 rounded-lg flex flex-col justify-center items-center">
+        <h1 class="ml-10 font-bold text-gray-500">Last 30 days</h1>
+        <h1 class="ml-10 my-5 text-2xl text-blue-500 font-bold">{{ monthly_sum.amount__sum|intcomma }}</h1>
+    </div>
+    <div class=" w-1/3 shadow-lg ml-11 rounded-lg flex flex-col justify-center items-center">
+        <h1 class="ml-10 font-bold text-gray-500">Last 7 days</h1>
+        <h1 class="ml-10 my-5 text-2xl text-blue-500 font-bold">{{ weekly_sum.amount__sum|intcomma }}</h1>
+    </div>
+</div>
+
+<!-- Past 30 day and categorical expenses -->
+<div class="flex">
+    <!-- last 30 day totals per day -->
+    <div class="w-1/2 shadow-lg m-10">
+        <div class="flex justify-center align-center flex-wrap space-x-40 font-bold px-20 py-5">
+            <span>Past 30 days sum expenses</span>
+        </div>
+        <hr>
+        <div id="30-day-table" class="flex flex-wrap">
+            {% for daily_sum in daily_sums %}
+            <div class="flex flex-wrap px-20 py-5 border-b">
+                <span>
+                    {{ daily_sum.date }}
+                </span>
+            </div>
+            <div class="flex flex-wrap px-20 py-5 border-b">
+                <span class="text-blue-500 font-bold">
+                    {{ daily_sum.sum }}
+                </span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- categorical totals -->
+    <div class="w-1/2 shadow-lg m-10">
+        <div class="flex flex-wrap justify-center space-x-40 font-bold px-20 py-5">
+            <span>Expenses by Category</span>
+        </div>
+        <hr>
+        <div id="cat-sum-table" class="flex flex-wrap">
+            {% for categorical_sum in categorical_sums %}
+            <div class="flex flex-wrap px-20 py-5 border-b">
+                <span>
+                    {{ categorical_sum.category }}
+                </span>
+            </div>
+            <div class="flex flex-wrap px-20 py-5 border-b">
+                <span class="text-blue-500 font-bold">
+                    {{ categorical_sum.sum }}
+                </span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<div class="flex">
+    <div class="w-1/2 shadow-lg m-10">
+        <h1 class="m-10 text-center text-blue-500 font-bold text-xl">Expenses per category</h1>
+        <canvas id="myChart" class="m-10"></canvas>
+    </div>
+    <div class="w-1/2 shadow-lg m-10 flex flex-col justify-center">
+        <h1 class="m-10 text-center text-blue-500 font-bold text-xl">Expenses over last 30 days</h1>
+        <canvas id="myChart2" class="m-10"></canvas>
+    </div>
+
+</div>
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.0.2/dist/chart.min.js"></script>
+
+<script>
+
+    // accessing elements via category and category table
+    const cats = []
+    const cat_sums = []
+
+    const catSumDiv = document.getElementById('cat-sum-table').getElementsByTagName('div')
+
+    for (i = 0; i < catSumDiv.length; i++) {
+        if (i % 2 == 1) {
+            cat_sums.push(catSumDiv[i].innerText.replace("£", "")) // need to remove any £ symbols, also removed the |intcomma humanize function as the table data needs pure numbers to work properly
+        } else {
+            cats.push(catSumDiv[i].innerText)
+        }
+    }
+    /* above, catSumDiv gets all the div elements in cat_sum_table, e.g. if 4 categories each will produce 2 divs
+        then, loops through those divs, for the even ones (i.e. the first of the two divs, for odd ones (e.g. the 2nd, i=1,3,5 etc) adds to the cat_sums array, else for odd indexes, i.e. i=0,2,4,6) adds to categories array
+    */
+
+    // dev only (want to check pure integer values) console.log(cat_sums)
+
+    // category table logic
+    var ctx = document.getElementById('myChart').getContext('2d');
+    var myChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: cats,
+            datasets: [{
+                label: 'Expense per category',
+                data: cat_sums,
+                backgroundColor: [
+                    'rgb(255, 99, 132)',
+                    'rgb(54, 162, 235)',
+                    'rgb(255, 206, 86)',
+                    'rgb(75, 192, 192)',
+                    'rgb(153, 102, 255)',
+                    'rgb(255, 159, 64)'
+                ],
+                borderColor: [
+                    'rgb(255, 99, 132)',
+                    'rgb(54, 162, 235)',
+                    'rgb(255, 206, 86)',
+                    'rgb(75, 192, 192)',
+                    'rgb(153, 102, 255)',
+                    'rgb(255, 159, 64)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+
+    // 30 day table logic
+    const dayDiv = document.getElementById('30-day-table').getElementsByTagName('div')
+
+    days = []
+    dailyExpenses = []
+
+    for (let i = 0; i < dayDiv.length; i++) {
+        if (i % 2 == 1) {
+            dailyExpenses.push(dayDiv[i].innerText.replace("£", ""))
+        } else {
+            days.push(dayDiv[i].innerText)
+
+        }
+    }
+
+    // 30 day table
+
+    var ctx = document.getElementById('myChart2').getContext('2d');
+    var myChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: days,
+            datasets: [{
+                label: 'Daily expenses',
+                data: dailyExpenses,
+                backgroundColor: [
+                    'rgb(112, 155, 97)',
+                    'rgb(200, 127, 168)',
+                    'rgb(138, 162, 170)',
+                    'rgb(203, 167, 86)',
+                    'rgb(121, 105, 171)',
+                    'rgb(152, 124, 86)',
+                    'rgb(0, 0, 0)' // Black color added
+                ],
+                borderColor: [
+                    'rgb(112, 155, 97)',
+                    'rgb(200, 127, 168)',
+                    'rgb(138, 162, 170)',
+                    'rgb(203, 167, 86)',
+                    'rgb(121, 105, 171)',
+                    'rgb(152, 124, 86)',
+                    'rgb(0, 0, 0)' // Black color added
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+
+
+</script>
+
+
+{% endblock %}
