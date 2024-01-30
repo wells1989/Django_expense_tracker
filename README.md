@@ -3,8 +3,8 @@
 - [Description](#description)
 - [Installation](#installation)
 - [Usage](#usage)
-- [Screenshots](#screenshots)
-- [Contribution Guidelines](#contribution-guidelines)
+- [Notes](#notes)
+- [Future Development](#future-development)
 
 ## Description
 
@@ -47,8 +47,8 @@ Access the app at http://localhost:8000 in your web browser.
 
 ![Screenshot (520)](https://github.com/wells1989/Full-stack-blog/assets/122035759/3e2f51d5-1a8c-4f0d-8e8e-6307569f2086)
 
-### Project Notes
+### Notes
 - The aim of the project was to utilise more complex Django views, using ORM in the backend to provide more specific data, whilst using tailwindCSS to create a more streamlined UI in the Frontend. 
 
-#### Potential Future development Areas:
+#### Future-development:
 - The next step of the project if going into deployment would be to add user registration / login functionality via django's built-in user authentication system. Then the User model could be used in conjunction with the views.py to filter expenses by user. As this was a development project focusing on complex Django data fetching and UI display these functionalities were not included in this version.
